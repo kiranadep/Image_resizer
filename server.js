@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+const port = process.env.PORT || 3000;
 
 // Define the uploads directory
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -18,7 +18,14 @@ app.use(express.static(path.join(__dirname)));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
+app.get('/', (req, res) => {
+    res.send('Hello from Vercel!');
+  });
 
+app.get('/api/resize', (req, res) => {
+    res.json({ message: 'Image resize API' });
+  });
+  
 // Set up storage for uploaded images
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
