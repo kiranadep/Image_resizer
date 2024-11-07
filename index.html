@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload and Resize</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <h1>Upload and Resize an Image</h1>
+
+    <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+        <label for="image">Choose an image:</label><br>
+        <input type="file" id="image" name="image" accept="image/*" required><br><br>
+
+        <label for="width">Width (optional):</label>
+        <input type="number" id="width" name="width" placeholder="Enter width in pixels"><br><br>
+
+        <label for="height">Height (optional):</label>
+        <input type="number" id="height" name="height" placeholder="Enter height in pixels"><br><br>
+
+        <button type="submit">Upload and Resize</button>
+    </form>
+
+    <div id="result">
+        <h2>Resized Image:</h2>
+        <img id="resizedImage" src="" alt="Resized Image"><br><br>
+
+        <button id="downloadButton" style="display: none;">Download Resized Image</button>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resizedImage = document.getElementById('resizedImage');
+        const downloadButton = document.getElementById('downloadButton');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();  // Prevent the default form submission
+            const formData = new FormData(form);
+            const width = document.getElementById('width').value;
+            const height = document.getElementById('height').value;
+            const queryString = `?width=${width}&height=${height}`;
+
+            try {
+                const response = await fetch(`/upload${queryString}`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (result.filename) {
+                    resizedImage.src = `/uploads/${result.filename}`;
+                    resizedImage.style.display = 'block';
+                    resultDiv.style.display = 'block';
+
+                    // Set download button to download the processed image
+                    downloadButton.style.display = 'block';
+                    downloadButton.addEventListener('click', () => {
+                        window.location.href = `/download/${result.filename}`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+            }
+        });
+    </script>
+</body>
+</html>
